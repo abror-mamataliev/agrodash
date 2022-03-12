@@ -1,0 +1,174 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <title>O`zbekiston Aholi zichligi</title>
+</head>
+
+<body style="padding: 10px; background-color: #024a15;">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light py-0">
+        <div class="container-fluid">
+            <a class="navbar-brand me-0" href="#">
+                <img src="{% static 'img/logo.png' %}" alt="" height="55">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <p class="nav-link m-0"></p>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Dropdown
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="#">Sozlamalar</a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'authion:logout' %}">Chiqish</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="row mt-2 overflow-hidden">
+        <div class="col-lg-7">
+            <div class="card">
+                <div id="mapid"></div>
+            </div>
+        </div>
+        <div class="col-lg-5" style="overflow-x: auto; height: 100%;">
+            <div id="table" class="card" style="font-size: 12px;"></div>
+        </div>
+    </div>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script type="text/javascript">
+        const center = [41.33, 69.3]
+        const zoom = 16
+        let map = L.map('mapid').setView(center, zoom)
+        const OSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {})
+        const googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        })
+        googleSat.addTo(map)
+        const konturStyle = (feature) => {
+            return {
+                dashArray: '4', //Chegara chizig`i turi
+                fillOpacity: 0.6,
+                weight: 3, //Chegara qalinlogi
+                color: 'white', //chegara rangi
+                fillColor: 'red' //polygon rangi
+            }
+        }
+        const konturLayerUrl = "{% url 'api:dashboard_layer' %}"
+        const popUpTable = (contour_id, area, crop, crop_plan, crop_real) => `<div>
+            <h3>Kontur ma'lumoti</h3>
+            <table class='table table-bordered mb-0'>
+                <tr>
+                    <td>Kontur raqami</td>
+                    <td>${contour_id}</td>
+                </tr>
+                <tr>
+                    <td>Kontur maydoni (1 m. kv.)</td>
+                    <td>${parseFloat((area / 10000).toFixed(3)).toLocaleString()} ga</td>
+                </tr>
+                <tr>
+                    <td>Ekin turi</td>
+                    <td>${crop ? crop : '-'}</td>
+                </tr>
+                <tr>
+                    <td>Rejadagi ekin maydoni</td>
+                    <td>${crop_plan ? parseFloat((crop_plan / 10000).toFixed(3)).toLocaleString() : '-'}</td>
+                </tr>
+                <tr>
+                    <td>Amaldagi ekin maydoni</td>
+                    <td>${crop_real ? parseFloat((crop_real / 10000).toFixed(3)).toLocaleString() : '-'}</td>
+                </tr>
+            </table>
+        </div>`
+        fetch(konturLayerUrl)
+            .then(res => res.json())
+            .then(konturLayer => {
+                const layer = JSON.parse(konturLayer)
+                let table = $(`<table class='table table-bordered mb-0'>
+                    <thead>
+                        <tr>
+                            <th>№</th>
+                            <th>Kontur raqami</th>
+                            <th>Kontur maydoni</th>
+                            <th>Ekin turi</th>
+                            <th>Rejadagi ekin maydoni</th>
+                            <th>Amaldagi ekin maydoni</th>
+                        </tr>
+                    </thead>
+                </table>`)
+                let tbody = $("<tbody></tbody>")
+                for (let i = 0; i < layer.features.length; i++) {
+                    const properties = layer.features[i].properties
+                    $(tbody).append(
+                        $("<tr></tr>").append(
+                            $("<td></td>").html(i + 1),
+                            $("<td></td>").html(properties['contour_id']),
+                            $("<td></td>").html(parseFloat((properties['area'] / 10000).toFixed(3)).toLocaleString()),
+                            $("<td></td>").html(properties['crop'] ? properties['crop'] : '-'),
+                            $("<td></td>").html(parseFloat((properties['crop_plan'] / 10000).toFixed(3)).toLocaleString() ? properties['crop_plan'] : '-'),
+                            $("<td></td>").html(parseFloat((properties['crop_real'] / 10000).toFixed(3)).toLocaleString() ? properties['crop_real'] : '-'),
+                        )
+                    )
+                }
+                $("#table").append(
+                    $(table).append($(tbody))
+                )
+                L.geoJson(layer, {
+                    style: konturStyle
+                })
+                    // Popup chiqarish
+            .bindPopup(function (layer) {
+                const properties = layer.feature.properties
+                const contour_id = properties['contour_id']
+                const area = properties['area']
+                const crop = properties['crop']
+                const crop_plan = properties['crop_plan']
+                const crop_real = properties['crop_real']
+                return popUpTable(contour_id, area, crop, crop_plan, crop_real)
+            })
+            .addTo(map) //Kartaga qushish
+        })
+    </script>
+    <script type="text/javascript">
+        $.ajax({
+            url: "{% url 'api:dashboard' %}",
+            dataType: "json"
+        }).done(function (result) {
+            $("a.dropdown-toggle").html(result['name'])
+            $("title, p.nav-link").html(result['farm_name'])
+        })
+    </script>
+</body>
+
+</html>

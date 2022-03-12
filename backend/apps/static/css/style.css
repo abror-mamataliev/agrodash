@@ -1,0 +1,150 @@
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+html {
+    overflow-x: hidden;
+}
+
+a, a:hover {
+    text-decoration: none;
+    color: rgb(28, 218, 126);
+}
+
+.img {
+    height: 180px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.form-control-placeholder {
+    font-family: "Lato";
+    padding: 7px 0 0 0;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: rgb(28, 218, 126);
+    font-weight: 700;
+}
+
+.form-control {
+    height: 48px;
+    background: #fff;
+    color: #000;
+    font-size: 16px;
+    border-radius: 5px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.form-control:focus, .form-control:active {
+    outline: none !important;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    border: 1px solid rgb(28, 218, 126);
+}
+
+.field-icon {
+    position: absolute;
+    top: 70%;
+    right: 15px;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    color: rgba(0, 0, 0, 0.3);
+}
+
+.toggle-password:hover {
+    cursor: pointer;
+}
+
+.submit {
+    font-family: "Lato";
+    background-color: rgb(28, 218, 126);
+    color: #ffffff;
+}
+
+.submit:hover, .submit:active {
+    font-family: "Lato";
+    border: 1px solid rgb(28, 218, 126);
+    background-color: #ffffff;
+    color: rgb(28, 218, 126);
+}
+
+.checkbox-wrap {
+    display: block;
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.checkbox-wrap input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.checkmark:after {
+    content: "\f0c8";
+    font-family: "FontAwesome";
+    position: absolute;
+    color: rgba(0, 0, 0, 0.1);
+    font-size: 20px;
+    margin-top: -4px;
+    -webkit-transition: 0.3s;
+    -o-transition: 0.3s;
+    transition: 0.3s;
+}
+
+.checkbox-wrap input:checked ~ .checkmark:after {
+    display: block;
+    content: "\f14a";
+    font-family: "FontAwesome";
+    color: rgba(0, 0, 0, 0.2);
+}
+
+.checkbox-primary {
+    color: rgb(28, 218, 126);
+}
+
+.checkbox-primary input:checked ~ .checkmark:after {
+    color: rgb(28, 218, 126);
+}
+
+.text-left {
+    text-align: left !important;
+}
+
+#mapid {
+    height: 550px;
+    width: 100%;
+}
+
+.card {
+    border: 3px solid #ffffff !important;
+}
+
+@media (min-width: 768px) {
+    .text-md-right {
+        text-align: right !important;
+    }
+}
