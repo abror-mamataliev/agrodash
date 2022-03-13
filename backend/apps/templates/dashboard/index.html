@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <title>O`zbekiston Aholi zichligi</title>
+    <title></title>
 </head>
 
 <body style="padding: 10px; background-color: #024a15;">
@@ -66,6 +66,16 @@
     </div>
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script type="text/javascript">
+        $.ajax({
+            url: "{% url 'api:dashboard' %}",
+            dataType: "json"
+        }).done(function (result) {
+            $("a.dropdown-toggle").html(result['name'])
+            $("title").html(`${result['farm_name']} | Agro Dash`)
+            $("p.nav-link").html(`${result['farm_name']}`)
+        })
+    </script>
     <script type="text/javascript">
         const center = [41.33, 69.3]
         const zoom = 16
@@ -136,8 +146,8 @@
                             $("<td></td>").html(properties['contour_id']),
                             $("<td></td>").html(parseFloat((properties['area'] / 10000).toFixed(3)).toLocaleString()),
                             $("<td></td>").html(properties['crop'] ? properties['crop'] : '-'),
-                            $("<td></td>").html(parseFloat((properties['crop_plan'] / 10000).toFixed(3)).toLocaleString() ? properties['crop_plan'] : '-'),
-                            $("<td></td>").html(parseFloat((properties['crop_real'] / 10000).toFixed(3)).toLocaleString() ? properties['crop_real'] : '-'),
+                            $("<td></td>").html(properties['crop_plan'] ? parseFloat((properties['crop_plan'] / 10000).toFixed(3)).toLocaleString() : '-'),
+                            $("<td></td>").html(properties['crop_real'] ? parseFloat((properties['crop_real'] / 10000).toFixed(3)).toLocaleString() : '-'),
                         )
                     )
                 }
@@ -158,15 +168,6 @@
                 return popUpTable(contour_id, area, crop, crop_plan, crop_real)
             })
             .addTo(map) //Kartaga qushish
-        })
-    </script>
-    <script type="text/javascript">
-        $.ajax({
-            url: "{% url 'api:dashboard' %}",
-            dataType: "json"
-        }).done(function (result) {
-            $("a.dropdown-toggle").html(result['name'])
-            $("title, p.nav-link").html(result['farm_name'])
         })
     </script>
 </body>
